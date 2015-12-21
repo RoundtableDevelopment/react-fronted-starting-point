@@ -1,5 +1,6 @@
 var gulp        = require('gulp'),
     gutil       = require('gulp-util'),
+    gulpSequence = require('gulp-sequence'),
     sass        = require('gulp-sass'),
     minifyCSS   = require('gulp-minify-css'),
     streamify   = require('gulp-streamify'),
@@ -16,20 +17,20 @@ var gulp        = require('gulp'),
 
 var paths = {
   scripts: {
-    src: './app/scripts/app.jsx',
+    src: './src/scripts/app.jsx',
     dest: 'dist/scripts'
   },
   stylesheets: {
-    src: './app/stylesheets/*.scss',
+    src: './src/stylesheets/*.scss',
     dest: 'dist/stylesheets'
   },
   images: {
-    src: './app/images/**/*',
+    src: './src/images/**/*',
     dest: 'dist/images'
   }
 }
 
-gulp.task('buildJS', ['clean'], function () {
+gulp.task('buildJS', function () {
   return browserify({entries: paths.scripts.src, extensions: ['.jsx'], debug: true})
       .transform('babelify', {presets: ['es2015', 'react']})
       .bundle()
@@ -40,7 +41,7 @@ gulp.task('buildJS', ['clean'], function () {
 
 });
 
-gulp.task('buildCSS', ['clean'], function() {
+gulp.task('buildCSS', function() {
   return gulp.src(paths.stylesheets.src)
     .pipe(sass())
     .pipe(gutil.env.type === 'production' ? minifyCSS() : gutil.noop())
@@ -48,7 +49,7 @@ gulp.task('buildCSS', ['clean'], function() {
     .pipe(notify({ message: 'CSS task complete' }));
 });
 
-gulp.task('images', ['clean'], function() {
+gulp.task('images', function() {
   return gulp.src(paths.images.src)
     .pipe(cache(imagemin({ optimizationLevel: 5, progressive: true, interlaced: true })))
     .pipe(gulp.dest(paths.images.dest))
@@ -60,7 +61,7 @@ gulp.task('clean', function() {
 });
 
 gulp.task('watch', function () {
-  gulp.watch(paths.scripts.src, ['buildJS', reload]);
+  gulp.watch('./src/scripts/**/*', ['buildJS', reload]);
   gulp.watch(paths.stylesheets.src, ['buildCSS', reload]);
   gulp.watch(paths.images.src, ['images', reload]);
 });
@@ -73,6 +74,10 @@ gulp.task('browser-sync', function() {
   });
 });
 
-gulp.task('default', ['watch', 'buildJS', 'buildCSS', 'images', 'browser-sync'], function() {
-  gutil.log('stuff happened', 'Really it did', gutil.colors.magenta('123'));
+gulp.task('build', function(cb) {
+  gulpSequence('clean', ['watch', 'buildJS', 'buildCSS', 'images'], cb);
+});
+
+gulp.task('default', ['build', 'browser-sync'], function() {
+  gutil.log(gutil.colors.magenta('Riding the Gulp train...'));
 });
