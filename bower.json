@@ -1,5 +1,5 @@
 {
-  "name": "basic-react",
+  "name": "react-frontend-starting-point",
   "description": "A basic react frontend using es6 and browserify",
   "main": "index.js",
   "authors": [

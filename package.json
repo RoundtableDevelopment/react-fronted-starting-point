@@ -1,8 +1,12 @@
 {
-  "name": "basic-react",
-  "version": "1.0.0",
+  "name": "react-frontend-starting-point",
+  "version": "0.1.0",
   "description": "A basic react frontend using es6 and browserify",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RoundtableDevelopment/react-frontend-starting-point"
+  },
   "scripts": {
     "test": "test"
   },
