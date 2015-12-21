@@ -1,87 +1,21 @@
-var gulp        = require('gulp'),
-    gutil       = require('gulp-util'),
-    gulpSequence  = require('gulp-sequence'),
-    sass        = require('gulp-sass'),
-    minifyCSS   = require('gulp-minify-css'),
-    streamify   = require('gulp-streamify'),
-    notify      = require('gulp-notify'),
-    imagemin    = require('gulp-imagemin'),
-    cache       = require('gulp-cache'),
-    uglify      = require('gulp-uglify'),
-    browserify  = require('browserify'),
-    babelify    = require('babelify'),
-    del         = require('del'),
-    source      = require('vinyl-source-stream'),
-    browserSync = require('browser-sync').create(),
-    reload      = browserSync.reload;
+/*
+  gulpfile.js
+  ===========
+  Rather than manage one giant configuration file responsible
+  for creating multiple tasks, each task has been broken out into
+  its own file in gulpfile.js/tasks. Any files in that directory get
+  automatically required below.
+  To add a new task, simply add a new task file that directory.
+  gulpfile.js/tasks/default.js specifies the default set of tasks to run
+  when you run `gulp`.
+*/
 
-var paths = {
-  scripts: {
-    src: './src/scripts/app.jsx',
-    dest: './dist/scripts'
-  },
-  stylesheets: {
-    src: './src/stylesheets/*.scss',
-    dest: './dist/stylesheets'
-  },
-  images: {
-    src: './src/images/**/*',
-    dest: './dist/images'
-  }
-}
+var requireDir  = require('require-dir');
+var gulp        = require('gulp');
+var gutil       = require('gulp-util');
 
-gulp.task('buildJS', function () {
-  return browserify({entries: paths.scripts.src, extensions: ['.jsx'], debug: true})
-      .transform('babelify', {presets: ['es2015', 'react']})
-      .bundle()
-      .pipe(source('bundle.js'))
-      .pipe(gutil.env.type === 'production' ? streamify(uglify()) : gutil.noop())
-      .pipe(gulp.dest(paths.scripts.dest))
-      .pipe(notify({ message: 'JS task complete' }));
-
-});
-
-gulp.task('buildCSS', function() {
-  return gulp.src(paths.stylesheets.src)
-    .pipe(sass({
-      includePaths: [
-        './bower_components/bootstrap-sass/assets/stylesheets',
-        './bower_components/font-awesome/scss',
-      ]
-    }))
-    .pipe(gutil.env.type === 'production' ? minifyCSS() : gutil.noop())
-    .pipe(gulp.dest(paths.stylesheets.dest))
-    .pipe(notify({ message: 'CSS task complete' }));
-});
-
-gulp.task('images', function() {
-  return gulp.src(paths.images.src)
-    .pipe(cache(imagemin({ optimizationLevel: 5, progressive: true, interlaced: true })))
-    .pipe(gulp.dest(paths.images.dest))
-    .pipe(notify({ message: 'Images task complete' }));
-});
-
-gulp.task('clean', function() {
-  return del([paths.scripts.dest, paths.stylesheets.dest, paths.images.dest]);
-});
-
-gulp.task('watch', function () {
-  gulp.watch('./src/scripts/**/*', ['buildJS', reload]);
-  gulp.watch(paths.stylesheets.src, ['buildCSS', reload]);
-  gulp.watch(paths.images.src, ['images', reload]);
-});
-
-gulp.task('browser-sync', function() {
-  browserSync.init({
-      server: {
-          baseDir: "./"
-      }
-  });
-});
-
-gulp.task('build', function(cb) {
-  gulpSequence('clean', ['watch', 'buildJS', 'buildCSS', 'images'], 'browser-sync', cb);
-});
+// Require all tasks in gulpfile.js/tasks, including subfolders
+requireDir('./gulp/tasks', { recurse: true });
 
 gulp.task('default', ['build'], function() {
   gutil.log(gutil.colors.magenta('Riding the Gulp train...'));
