@@ -1,6 +1,6 @@
 var gulp        = require('gulp'),
     gutil       = require('gulp-util'),
-    gulpSequence = require('gulp-sequence'),
+    gulpSequence  = require('gulp-sequence'),
     sass        = require('gulp-sass'),
     minifyCSS   = require('gulp-minify-css'),
     streamify   = require('gulp-streamify'),
@@ -18,15 +18,15 @@ var gulp        = require('gulp'),
 var paths = {
   scripts: {
     src: './src/scripts/app.jsx',
-    dest: 'dist/scripts'
+    dest: './dist/scripts'
   },
   stylesheets: {
     src: './src/stylesheets/*.scss',
-    dest: 'dist/stylesheets'
+    dest: './dist/stylesheets'
   },
   images: {
     src: './src/images/**/*',
-    dest: 'dist/images'
+    dest: './dist/images'
   }
 }
 
@@ -43,7 +43,11 @@ gulp.task('buildJS', function () {
 
 gulp.task('buildCSS', function() {
   return gulp.src(paths.stylesheets.src)
-    .pipe(sass())
+    .pipe(sass({
+      includePaths: [
+        './bower_components/bootstrap-sass/assets/stylesheets',
+      ]
+    }))
     .pipe(gutil.env.type === 'production' ? minifyCSS() : gutil.noop())
     .pipe(gulp.dest(paths.stylesheets.dest))
     .pipe(notify({ message: 'CSS task complete' }));
