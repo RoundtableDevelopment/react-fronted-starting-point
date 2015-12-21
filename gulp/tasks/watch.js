@@ -1,5 +1,5 @@
 var gulp        = require('gulp');
-var browserSync = require('browser-sync').create();
+var browserSync = require('browser-sync');
 var reload      = browserSync.reload;
 
 var config      = require('../config');
