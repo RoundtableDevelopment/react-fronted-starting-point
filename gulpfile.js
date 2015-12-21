@@ -1,44 +1,68 @@
-var gulp        = require('gulp');
-var gutil       = require('gulp-util');
-var sass        = require('gulp-sass');
-var minifyCSS   = require('gulp-minify-css');
-var browserify  = require('browserify');
-var babelify    = require('babelify');
-var streamify   = require('gulp-streamify');
-var del         = require('del');
-var source      = require('vinyl-source-stream');
-var uglify      = require('gulp-uglify');
-var browserSync = require('browser-sync').create();
-var reload      = browserSync.reload;
+var gulp        = require('gulp'),
+    gutil       = require('gulp-util'),
+    sass        = require('gulp-sass'),
+    minifyCSS   = require('gulp-minify-css'),
+    streamify   = require('gulp-streamify'),
+    notify      = require('gulp-notify'),
+    imagemin    = require('gulp-imagemin'),
+    cache       = require('gulp-cache'),
+    uglify      = require('gulp-uglify'),
+    browserify  = require('browserify'),
+    babelify    = require('babelify'),
+    del         = require('del'),
+    source      = require('vinyl-source-stream'),
+    browserSync = require('browser-sync').create(),
+    reload      = browserSync.reload;
 
 var paths = {
-  scripts: './app/scripts/app.jsx',
-  stylesheets: './app/stylesheets/*.scss',
+  scripts: {
+    src: './app/scripts/app.jsx',
+    dest: 'dist/scripts'
+  },
+  stylesheets: {
+    src: './app/stylesheets/*.scss',
+    dest: 'dist/stylesheets'
+  },
+  images: {
+    src: './app/images/**/*',
+    dest: 'dist/images'
+  }
 }
 
 gulp.task('buildJS', ['clean'], function () {
-  return browserify({entries: paths.scripts, extensions: ['.jsx'], debug: true})
+  return browserify({entries: paths.scripts.src, extensions: ['.jsx'], debug: true})
       .transform('babelify', {presets: ['es2015', 'react']})
       .bundle()
       .pipe(source('bundle.js'))
       .pipe(gutil.env.type === 'production' ? streamify(uglify()) : gutil.noop())
-      .pipe(gulp.dest('dist'));
+      .pipe(gulp.dest(paths.scripts.dest))
+      .pipe(notify({ message: 'JS task complete' }));
+
 });
 
 gulp.task('buildCSS', ['clean'], function() {
-  return gulp.src(paths.stylesheets)
+  return gulp.src(paths.stylesheets.src)
     .pipe(sass())
     .pipe(gutil.env.type === 'production' ? minifyCSS() : gutil.noop())
-    .pipe(gulp.dest('dist'))
-})
+    .pipe(gulp.dest(paths.stylesheets.dest))
+    .pipe(notify({ message: 'CSS task complete' }));
+});
+
+gulp.task('images', ['clean'], function() {
+  return gulp.src(paths.images.src)
+    .pipe(cache(imagemin({ optimizationLevel: 5, progressive: true, interlaced: true })))
+    .pipe(gulp.dest(paths.images.dest))
+    .pipe(notify({ message: 'Images task complete' }));
+});
 
 gulp.task('clean', function() {
-  return del(['dist']);
+  return del([paths.scripts.dest, paths.stylesheets.dest, paths.images.dest]);
 });
 
 gulp.task('watch', function () {
-  gulp.watch(paths.scripts, ['buildJS', reload]);
-  gulp.watch(paths.stylesheets, ['buildCSS', reload]);
+  gulp.watch(paths.scripts.src, ['buildJS', reload]);
+  gulp.watch(paths.stylesheets.src, ['buildCSS', reload]);
+  gulp.watch(paths.images.src, ['images', reload]);
 });
 
 gulp.task('browser-sync', function() {
@@ -49,6 +73,6 @@ gulp.task('browser-sync', function() {
   });
 });
 
-gulp.task('default', ['watch', 'buildJS', 'buildCSS', 'browser-sync'], function() {
+gulp.task('default', ['watch', 'buildJS', 'buildCSS', 'images', 'browser-sync'], function() {
   gutil.log('stuff happened', 'Really it did', gutil.colors.magenta('123'));
 });
