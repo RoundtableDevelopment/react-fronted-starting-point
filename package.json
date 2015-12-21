@@ -33,7 +33,6 @@
     "gulp-streamify": "^1.0.2",
     "gulp-uglify": "^1.5.1",
     "gulp-util": "^3.0.7",
-    "material-ui": "^0.14.0-rc2",
     "require-dir": "^0.3.0",
     "vinyl-source-stream": "^1.1.0"
   }
