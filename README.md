@@ -4,11 +4,15 @@ This is just a starting point to let us use gulp to set up a ReactJS front end.
 
 ## Installation
 
-TODO: Describe the installation process
+First, clone the repository
+
+`git clone git@github.com:RoundtableDevelopment/react-frontend-starting-point.git`
+
+Then, `cd react-frontend-starting-point`, run `bower install` and `npm install`.  These will probably take a minute.
 
 ## Usage
 
-TODO: Write usage instructions
+To get started, just run `gulp`.  It will automatically compile everything in the /src directory, start a server, and open your web browser.  Because we've got BrowserSync, anytime you save a change to an image, sass file, or javascript file, the page will automatically reload.  Yowza!
 
 ## Contributing
 
@@ -28,4 +32,4 @@ TODO: Write credits
 
 ## License
 
-TODO: Write license
+MIT
