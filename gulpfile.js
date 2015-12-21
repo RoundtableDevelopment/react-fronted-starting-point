@@ -46,6 +46,7 @@ gulp.task('buildCSS', function() {
     .pipe(sass({
       includePaths: [
         './bower_components/bootstrap-sass/assets/stylesheets',
+        './bower_components/font-awesome/scss',
       ]
     }))
     .pipe(gutil.env.type === 'production' ? minifyCSS() : gutil.noop())
@@ -79,9 +80,9 @@ gulp.task('browser-sync', function() {
 });
 
 gulp.task('build', function(cb) {
-  gulpSequence('clean', ['watch', 'buildJS', 'buildCSS', 'images'], cb);
+  gulpSequence('clean', ['watch', 'buildJS', 'buildCSS', 'images'], 'browser-sync', cb);
 });
 
-gulp.task('default', ['build', 'browser-sync'], function() {
+gulp.task('default', ['build'], function() {
   gutil.log(gutil.colors.magenta('Riding the Gulp train...'));
 });
